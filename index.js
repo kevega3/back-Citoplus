@@ -7,7 +7,7 @@ const auth = require("./middleware/auth");
 const app = express();
 const port = 3000;
 const config = require("./config");
-
+const generateToken = require("./middleware/generateToken");
 app.use(cors());
 
 app.use(express.json());
@@ -26,16 +26,19 @@ sql
           .execute("BuscarUsuarioPorEmailYPassword");
 
         if (result.recordset.length > 0) {
+          const user = result.recordset[0];
+          const token = generateToken({ id: user.id, email: user.email });
+
           response = {
             error: false,
             ayuda: "Logeo Exitoso",
-            data: result.recordset,
+            data: token,
           };
           res.status(200).send(response);
         } else {
           response = {
             error: true,
-            ayuda: "No se eUsuario o Contraseña incorrecta",
+            ayuda: "Usuario o Contraseña incorrecta",
             data: result.recordset,
           };
           res.status(200).send(response);
